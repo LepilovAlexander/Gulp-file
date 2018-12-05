@@ -1,29 +1,29 @@
-var gulp = require('gulp');
-var browserSync = require('browser-sync');
-var concatCSS = require('gulp-concat-css');
-var rename = require('gulp-rename');
-var less = require('gulp-less');
-var autopref = require('gulp-autoprefixer');
-var cleanCSS = require('gulp-clean-css');
-var htmlmin = require('gulp-htmlmin');
-
+let gulp = require('gulp');
+let browserSync = require('browser-sync');
+let concatCSS = require('gulp-concat-css');
+let sass = require('gulp-sass');
+let autopref = require('gulp-autoprefixer');
+let cleanCSS = require('gulp-clean-css');
 
 // Static server
-gulp.task('server', function() {
-	browserSync.init({
-		proxy: 'lessProject'
-		});
-	gulp.watch("less/*.less", [less]);
-	gulp.watch("**/*.php").on('change', browserSync.reload);
-	});
+gulp.task('default', () => {
+    browserSync.init({
+        server: {
+            baseDir: "./dist/"
+        }
+    });
+    gulp.watch('src/sass/*.scss', ['sass']);
+    gulp.watch("dist/index.html").on('change', browserSync.reload);
+});
+//SASS
+sass.compiler = require('node-sass');
 
-//Less
-gulp.task('less', function(){
-	return gulp.src('less/*.less')
-	.pipe(less())
-	.pipe(concatCSS('style.css'))
-	.pipe(autopref('last 10 versions', 'ie 9'))
-	.pipe(cleanCSS())
-	.pipe(gulp.dest('css/'))
-	.pipe(browserSync.stream());
-	});
+gulp.task('sass', () => {
+    return gulp.src('src/sass/**/*.*')
+        .pipe(sass().on('error', sass.logError))
+        .pipe(concatCSS('style.css'))
+        .pipe(autopref('last 10 versions', 'ie 9'))
+        .pipe(cleanCSS())
+        .pipe(gulp.dest('./dist/css/'))
+        .pipe(browserSync.stream());
+});
